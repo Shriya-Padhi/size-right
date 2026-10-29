@@ -90,3 +90,43 @@ def make_client():
 
 def model_name() -> str:
     return os.getenv("LLM_MODEL", "qwen2.5:7b")
+
+
+def run_turn(client, model: str, messages: list[dict], max_rounds: int = 5) -> tuple[str, list[dict]]:
+    """Send messages, execute any tool calls, repeat until the model answers in text.
+
+    Mutates `messages` so the conversation keeps its history.
+    Returns (reply_text, tool_events) where tool_events lists each tool call and its result.
+    """
+    events = []
+    for _ in range(max_rounds):
+        resp = client.chat.completions.create(model=model, messages=messages, tools=TOOLS)
+        msg = resp.choices[0].message
+
+        # Case A: plain text answer -> done
+        if not msg.tool_calls:
+            messages.append({"role": "assistant", "content": msg.content or ""})
+            return msg.content or "", events
+
+        # Case B: the model asked for tools. Record its request in the history.
+        messages.append({
+            "role": "assistant",
+            "content": msg.content or "",
+            "tool_calls": [
+                {"id": tc.id, "type": "function",
+                 "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+                for tc in msg.tool_calls
+            ],
+        })
+
+        # Run each requested tool and send the result back, linked by tool_call_id
+        for tc in msg.tool_calls:
+            try:
+                args = json.loads(tc.function.arguments or "{}")
+            except json.JSONDecodeError:
+                args = {}
+            result = run_tool(tc.function.name, args)
+            events.append({"tool": tc.function.name, "args": args, "result": result})
+            messages.append({"role": "tool", "tool_call_id": tc.id, "content": json.dumps(result)})
+
+    return "I couldn't finish that calculation. Could you rephrase?", events

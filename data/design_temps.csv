@@ -1,0 +1,22 @@
+city,heating_design_f,cooling_design_f,climate_zone
+"Anchorage, AK",-12,71,7
+"Atlanta, GA",25,92,3
+"Boston, MA",10,88,5
+"Burlington, VT",-7,85,6
+"Chicago, IL",0,89,5
+"Columbus, OH",6,89,5
+"Dallas, TX",24,98,3
+"Denver, CO",3,93,5
+"Detroit, MI",6,88,5
+"Fargo, ND",-17,89,7
+"Houston, TX",32,95,2
+"Kansas City, MO",5,96,4
+"Los Angeles, CA",44,84,3
+"Minneapolis, MN",-11,89,6
+"Nashville, TN",18,93,4
+"New York, NY",15,90,4
+"Philadelphia, PA",15,91,4
+"Phoenix, AZ",38,108,2
+"Portland, ME",2,84,6
+"Salt Lake City, UT",9,95,5
+"Seattle, WA",27,84,4
